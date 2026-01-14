@@ -16,6 +16,19 @@ class SimpleMessenger:
     def clear_screen(self):
         os.system('cls' if os.name == 'nt' else 'clear')
 
+    def receive_messages(self, client_socket):
+        while self.running:
+            try:
+                message = client_socket.recv(1024).decode('utf-8')
+                if message:
+                    timestamp = time.strftime('%H:%M:%S', time.localtime())
+                    print(f'\n[{timestamp}] {message}')
+                    print('Вы: ', end='', flush=True)
+            except:
+                print('\nСоединение прервано!')
+                client_socket.close()
+                break
+
 
 def main():
     messenger = SimpleMessenger()
