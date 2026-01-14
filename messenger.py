@@ -18,7 +18,18 @@ class SimpleMessenger:
 
 
 def main():
-    pass
+    messenger = SimpleMessenger()
+    print('аля вотсап:)')
+    print('Возможные режимы:')
+    print('1. запустить сервер')
+    print('2. подключиться к серверу')
+    choise = input('Выберите режим 1 или 2: ')
+    if choise == '1':
+        messenger.start_server()
+    elif choise == '2':
+        messenger.start_client()
+    else:
+        print('Выбран неверный режим')
 
 
 if __name__ == '__main__':
