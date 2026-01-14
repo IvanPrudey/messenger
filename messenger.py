@@ -29,13 +29,38 @@ class SimpleMessenger:
                 client_socket.close()
                 break
 
+    def send_message(self, client_socket):
+        while self.running:
+            try:
+                message = input()
+                if message.lower() == '/exit':
+                    self.running = False
+                    client_socket.send(f"{self.nickname} покинул чат".encode('utf-8'))
+                    break
+                elif message.lower() == '/clear':
+                    self.clear_screen()
+                    print('-----------------------------------------------------')
+                    print('-----------------------------------------------------')
+                    print('аля вотсап version_1:)')
+                    print("Вы: ", end="", flush=True)
+                    continue
+                full_message = f'{self.nickname}: {message}'
+                client_socket.send(full_message.encode('utf-8'))
+            except:
+                break
 
 def main():
     messenger = SimpleMessenger()
-    print('аля вотсап:)')
+    print('-----------------------------------------------------')
+    print('-----------------------------------------------------')
+    print('аля вотсап version_1:)')
+    print('-----------------------------------------------------')
+    print('-----------------------------------------------------')
     print('Возможные режимы:')
     print('1. запустить сервер')
     print('2. подключиться к серверу')
+    print('-----------------------------------------------------')
+    print('-----------------------------------------------------')
     choise = '0'
     while choise not in ('1', '2'):
         choise = input('Выберите режим 1 или 2: ')
@@ -45,6 +70,8 @@ def main():
         messenger.start_client()
     else:
         pass
+    print('-----------------------------------------------------')
+    print('-----------------------------------------------------')
 
 
 if __name__ == '__main__':
