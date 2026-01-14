@@ -23,13 +23,15 @@ def main():
     print('Возможные режимы:')
     print('1. запустить сервер')
     print('2. подключиться к серверу')
-    choise = input('Выберите режим 1 или 2: ')
+    choise = '0'
+    while choise not in ('1', '2'):
+        choise = input('Выберите режим 1 или 2: ')
     if choise == '1':
         messenger.start_server()
     elif choise == '2':
         messenger.start_client()
     else:
-        print('Выбран неверный режим')
+        pass
 
 
 if __name__ == '__main__':
