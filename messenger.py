@@ -49,6 +49,7 @@ class SimpleMessenger:
             except:
                 break
 
+
 def start_server(self):
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -101,8 +102,34 @@ def start_server(self):
 
     accept_thread = threading.Thread(target=accept_connections)
     accept_thread.start()
+    print('\nВы можете отправлять сообщения (введите /exit для выхода):')
+    while True:
+        message = input()
+        if message.lower() == '/exit':
+            broadcast('Сервер отключен')
+            break
+        broadcast(f'Сервер: {message}')
+        server.close()
 
 
+def start_client(self):
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        client.connect((self.host, self.port))
+    except:
+        print("Не удалось подключиться к серверу")
+        return
+    client.send(self.nickname.encode('utf-8'))
+    print(f"Подключено к серверу {self.host}:{self.port}")
+    print("Команды: /exit - выход, /clear - очистка экрана")
+    print("-" * 40)
+    receive_thread = threading.Thread(target=self.receive_messages, args=(client,))
+    receive_thread.start()
+    send_thread = threading.Thread(target=self.send_message, args=(client,))
+    send_thread.start()
+    receive_thread.join()
+    send_thread.join()
+    client.close()
 
 
 def main():
