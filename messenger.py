@@ -71,6 +71,23 @@ def start_server(self):
                 broadcast(f"{nickname} покинул чат")
                 nicknames.remove(nickname)
 
+    def handle_client(client):
+        while True:
+            try:
+                message = client.recv(1024).decode('utf-8')
+                if message:
+                    broadcast(message)
+            except:
+                index = clients.index(client)
+                clients.remove(client)
+                client.close()
+                nickname = nicknames[index]
+                broadcast(f"{nickname} покинул чат")
+                nicknames.remove(nickname)
+                break
+
+    
+
     accept_thread = threading.Thread(target=accept_connections)
     accept_thread.start()
 
