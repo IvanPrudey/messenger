@@ -59,10 +59,22 @@ def start_server(self):
     clients = []
     nicknames = []
 
+    def broadcast(message):
+        for client in clients:
+            try:
+                client.send(message.encode('utf-8'))
+            except:
+                index = clients.index(client)
+                clients.remove(client)
+                client.close()
+                nickname = nicknames[index]
+                broadcast(f"{nickname} покинул чат")
+                nicknames.remove(nickname)
+
     accept_thread = threading.Thread(target=accept_connections)
     accept_thread.start()
 
-    
+
 
 
 def main():
