@@ -49,6 +49,21 @@ class SimpleMessenger:
             except:
                 break
 
+def start_server(self):
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server.bind((self.host, self.port))
+    server.listen()
+    print(f'Сервер запущен на {self.host}:{self.port}')
+    print('Ожидание подключений...')
+    clients = []
+    nicknames = []
+
+    accept_thread = threading.Thread(target=accept_connections)
+    accept_thread.start()
+    
+
+
 def main():
     messenger = SimpleMessenger()
     print('-----------------------------------------------------')
