@@ -87,17 +87,17 @@ def start_server(self):
                 break
 
     def accept_connections():
-            while True:
-                client, address = server.accept()
-                print(f"Новое подключение от {str(address)}")
-                client.send("NICK".encode('utf-8'))
-                nickname = client.recv(1024).decode('utf-8')
-                nicknames.append(nickname)
-                clients.append(client)
-                print(f"Никнейм клиента: {nickname}")
-                broadcast(f"{nickname} присоединился к чату!")
-                thread = threading.Thread(target=handle_client, args=(client,))
-                thread.start()
+        while True:
+            client, address = server.accept()
+            print(f'Новое подключение от {str(address)}')
+            client.send('NICK'.encode('utf-8'))
+            nickname = client.recv(1024).decode('utf-8')
+            nicknames.append(nickname)
+            clients.append(client)
+            print(f'Никнейм клиента: {nickname}')
+            broadcast(f'{nickname} присоединился к чату!')
+            thread = threading.Thread(target=handle_client, args=(client,))
+            thread.start()
 
     accept_thread = threading.Thread(target=accept_connections)
     accept_thread.start()
