@@ -49,87 +49,85 @@ class SimpleMessenger:
             except:
                 break
 
+    def start_server(self):
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        server.bind((self.host, self.port))
+        server.listen()
+        print(f'Сервер запущен на {self.host}:{self.port}')
+        print('Ожидание подключений...')
+        clients = []
+        nicknames = []
 
-def start_server(self):
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server.bind((self.host, self.port))
-    server.listen()
-    print(f'Сервер запущен на {self.host}:{self.port}')
-    print('Ожидание подключений...')
-    clients = []
-    nicknames = []
+        def broadcast(message):
+            for client in clients:
+                try:
+                    client.send(message.encode('utf-8'))
+                except:
+                    index = clients.index(client)
+                    clients.remove(client)
+                    client.close()
+                    nickname = nicknames[index]
+                    broadcast(f"{nickname} покинул чат")
+                    nicknames.remove(nickname)
 
-    def broadcast(message):
-        for client in clients:
-            try:
-                client.send(message.encode('utf-8'))
-            except:
-                index = clients.index(client)
-                clients.remove(client)
-                client.close()
-                nickname = nicknames[index]
-                broadcast(f"{nickname} покинул чат")
-                nicknames.remove(nickname)
+        def handle_client(client):
+            while True:
+                try:
+                    message = client.recv(1024).decode('utf-8')
+                    if message:
+                        broadcast(message)
+                except:
+                    index = clients.index(client)
+                    clients.remove(client)
+                    client.close()
+                    nickname = nicknames[index]
+                    broadcast(f"{nickname} покинул чат")
+                    nicknames.remove(nickname)
+                    break
 
-    def handle_client(client):
+        def accept_connections():
+            while True:
+                client, address = server.accept()
+                print(f'Новое подключение от {str(address)}')
+                client.send('nickname: '.encode('utf-8'))
+                nickname = client.recv(1024).decode('utf-8')
+                nicknames.append(nickname)
+                clients.append(client)
+                print(f'Никнейм клиента: {nickname}')
+                broadcast(f'{nickname} присоединился к чату!')
+                thread = threading.Thread(target=handle_client, args=(client,))
+                thread.start()
+
+        accept_thread = threading.Thread(target=accept_connections)
+        accept_thread.start()
+        print('\nВы можете отправлять сообщения (введите /exit для выхода):')
         while True:
-            try:
-                message = client.recv(1024).decode('utf-8')
-                if message:
-                    broadcast(message)
-            except:
-                index = clients.index(client)
-                clients.remove(client)
-                client.close()
-                nickname = nicknames[index]
-                broadcast(f"{nickname} покинул чат")
-                nicknames.remove(nickname)
+            message = input()
+            if message.lower() == '/exit':
+                broadcast('Сервер отключен')
                 break
-
-    def accept_connections():
-        while True:
-            client, address = server.accept()
-            print(f'Новое подключение от {str(address)}')
-            client.send('NICK'.encode('utf-8'))
-            nickname = client.recv(1024).decode('utf-8')
-            nicknames.append(nickname)
-            clients.append(client)
-            print(f'Никнейм клиента: {nickname}')
-            broadcast(f'{nickname} присоединился к чату!')
-            thread = threading.Thread(target=handle_client, args=(client,))
-            thread.start()
-
-    accept_thread = threading.Thread(target=accept_connections)
-    accept_thread.start()
-    print('\nВы можете отправлять сообщения (введите /exit для выхода):')
-    while True:
-        message = input()
-        if message.lower() == '/exit':
-            broadcast('Сервер отключен')
-            break
-        broadcast(f'Сервер: {message}')
+            broadcast(f'Сервер: {message}')
         server.close()
 
-
-def start_client(self):
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        client.connect((self.host, self.port))
-    except:
-        print("Не удалось подключиться к серверу")
-        return
-    client.send(self.nickname.encode('utf-8'))
-    print(f"Подключено к серверу {self.host}:{self.port}")
-    print("Команды: /exit - выход, /clear - очистка экрана")
-    print("-" * 40)
-    receive_thread = threading.Thread(target=self.receive_messages, args=(client,))
-    receive_thread.start()
-    send_thread = threading.Thread(target=self.send_message, args=(client,))
-    send_thread.start()
-    receive_thread.join()
-    send_thread.join()
-    client.close()
+    def start_client(self):
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            client.connect((self.host, self.port))
+        except:
+            print('Не удалось подключиться к серверу')
+            return
+        client.send(self.nickname.encode('utf-8'))
+        print(f'Подключено к серверу {self.host}:{self.port}')
+        print('Команды: /exit - выход, /clear - очистка экрана')
+        print('-' * 40)
+        receive_thread = threading.Thread(target=self.receive_messages, args=(client,))
+        receive_thread.start()
+        send_thread = threading.Thread(target=self.send_message, args=(client,))
+        send_thread.start()
+        receive_thread.join()
+        send_thread.join()
+        client.close()
 
 
 def main():
