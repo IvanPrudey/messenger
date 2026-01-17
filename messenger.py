@@ -3,6 +3,7 @@ import socket
 import sys
 import time
 import threading
+import signal
 
 
 class SimpleMessenger:
@@ -42,7 +43,7 @@ class SimpleMessenger:
                     print('-----------------------------------------------------')
                     print('-----------------------------------------------------')
                     print('аля вотсап version_1:)')
-                    print("Вы: ", end="", flush=True)
+                    print('Вы: ', end='', flush=True)
                     continue
                 full_message = f'{self.nickname}: {message}'
                 client_socket.send(full_message.encode('utf-8'))
@@ -68,7 +69,7 @@ class SimpleMessenger:
                     clients.remove(client)
                     client.close()
                     nickname = nicknames[index]
-                    broadcast(f"{nickname} покинул чат")
+                    broadcast(f'{nickname} покинул чат')
                     nicknames.remove(nickname)
 
         def handle_client(client):
@@ -82,7 +83,7 @@ class SimpleMessenger:
                     clients.remove(client)
                     client.close()
                     nickname = nicknames[index]
-                    broadcast(f"{nickname} покинул чат")
+                    broadcast(f'{nickname} покинул чат')
                     nicknames.remove(nickname)
                     break
 
@@ -99,6 +100,13 @@ class SimpleMessenger:
                 thread = threading.Thread(target=handle_client, args=(client,))
                 thread.start()
 
+        def signal_handler(sig, frame):
+            print('\nСервер завершает работу...')
+            broadcast('Сервер отключен')
+            sys.exit(0)
+
+        signal.signal(signal.SIGINT, signal_handler)
+
         accept_thread = threading.Thread(target=accept_connections)
         accept_thread.start()
         print('\nВы можете отправлять сообщения (введите /exit для выхода):')
@@ -108,6 +116,7 @@ class SimpleMessenger:
                 broadcast('Сервер отключен')
                 break
             broadcast(f'Сервер: {message}')
+        
         server.close()
 
     def start_client(self):
@@ -120,7 +129,7 @@ class SimpleMessenger:
         client.send(self.nickname.encode('utf-8'))
         print(f'Подключено к серверу {self.host}:{self.port}')
         print('Команды: /exit - выход, /clear - очистка экрана')
-        print('-' * 40)
+        print('=' * 55)
         receive_thread = threading.Thread(target=self.receive_messages, args=(client,))
         receive_thread.start()
         send_thread = threading.Thread(target=self.send_message, args=(client,))
@@ -132,16 +141,13 @@ class SimpleMessenger:
 
 def main():
     messenger = SimpleMessenger()
-    print('-----------------------------------------------------')
-    print('-----------------------------------------------------')
+    print('=' * 55)
     print('аля вотсап version_1:)')
-    print('-----------------------------------------------------')
-    print('-----------------------------------------------------')
+    print('=' * 55)
     print('Возможные режимы:')
     print('1. запустить сервер')
     print('2. подключиться к серверу')
-    print('-----------------------------------------------------')
-    print('-----------------------------------------------------')
+    print('=' * 55)
     choise = '0'
     while choise not in ('1', '2'):
         choise = input('Выберите режим 1 или 2: ')
@@ -151,8 +157,7 @@ def main():
         messenger.start_client()
     else:
         pass
-    print('-----------------------------------------------------')
-    print('-----------------------------------------------------')
+    print('=' * 55)
 
 
 if __name__ == '__main__':
